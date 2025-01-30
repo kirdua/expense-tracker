@@ -48,7 +48,7 @@ const WalletModal = () => {
 
   const onSubmit = async () => {
     let { name, image } = wallet
-    if (!name.trim()) {
+    if (!name.trim() || !image) {
       Alert.alert('User', 'Please fill in all the fields.')
       return
     }
@@ -87,7 +87,12 @@ const WalletModal = () => {
           <View style={styles.inputContainer}>
             <Typo color={colors.neutral200}>Wallet Icon</Typo>
             {/* image input */}
-            <ImageUpload />
+            <ImageUpload
+              file={wallet.image}
+              onClear={() => setWallet({ ...wallet, image: null })}
+              onSelect={(file) => setWallet({ ...wallet, image: file })}
+              placeholder='Upload Image'
+            />
           </View>
         </ScrollView>
       </View>
