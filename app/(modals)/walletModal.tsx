@@ -23,6 +23,7 @@ import { updateUser } from '@/services/userService'
 import { useRouter } from 'expo-router'
 import * as ImagePicker from 'expo-image-picker'
 import ImageUpload from '@/components/imageUpload'
+import { createOrUpdateWallet } from '@/services/walletService'
 
 const WalletModal = () => {
   const { user, updateUserData } = useAuth()
@@ -34,33 +35,27 @@ const WalletModal = () => {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  const onPickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      aspect: [4, 3],
-      quality: 0.5
-    })
-
-    if (!result.canceled) {
-      //setUserData({ ...userData, image: result.assets[0] })
-    }
-  }
-
   const onSubmit = async () => {
     let { name, image } = wallet
     if (!name.trim() || !image) {
-      Alert.alert('User', 'Please fill in all the fields.')
+      Alert.alert('Wallet', 'Please fill in all the fields.')
       return
     }
 
+    const data: WalletType = {
+      name,
+      image,
+      uid: user?.uid
+    }
+    //todo: include wallet id if updating
     setLoading(true)
-    const res = await updateUser(user?.uid as string, wallet)
+    //const res = await createOrUpdateWallet(user?.uid as string, wallet)
+    const res = await createOrUpdateWallet(data)
     setLoading(false)
     if (res.success) {
-      updateUserData(user?.uid as string)
       router.back()
     } else {
-      Alert.alert('User', res.msg)
+      Alert.alert('Wallet', res.msg)
     }
   }
 
