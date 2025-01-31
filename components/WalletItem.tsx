@@ -6,6 +6,8 @@ import { Router } from 'expo-router'
 import { verticalScale } from '@/utils/styling'
 import { colors, radius, spacingX } from '@/constants/theme'
 import { Image } from 'expo-image'
+import * as Icons from 'phosphor-react-native'
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated'
 
 const WalletItem = ({
   item,
@@ -16,10 +18,24 @@ const WalletItem = ({
   index: number
   router: Router
 }) => {
+  const openWallet = () => {
+    router.push({
+      pathname: '/(modals)/walletModal',
+      params: {
+        id: item?.id,
+        name: item?.name,
+        image: item?.image
+      }
+    })
+  }
+
   return (
-    <View>
-      {item.name}
-      <TouchableOpacity style={styles.container}>
+    <Animated.View
+      entering={FadeInDown.delay(index * 50)
+        .springify()
+        .damping(13)}
+    >
+      <TouchableOpacity style={styles.container} onPress={openWallet}>
         <View style={styles.imageContainer}>
           <Image
             style={{ flex: 1 }}
@@ -30,9 +46,15 @@ const WalletItem = ({
         </View>
         <View style={styles.nameContainer}>
           <Typo>{item?.name}</Typo>
+          <Typo color={colors.neutral400}>${item?.amount}</Typo>
         </View>
+        <Icons.CaretRight
+          size={verticalScale(20)}
+          weight='bold'
+          color={colors.white}
+        />
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   )
 }
 

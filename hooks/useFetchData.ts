@@ -26,7 +26,6 @@ const useFetchData = <T>(
       q,
       (snapshot) => {
         const fetchData = snapshot.docs.map((doc) => {
-          console.log(doc)
           return {
             id: doc.id,
             ...doc.data()
