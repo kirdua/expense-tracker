@@ -13,7 +13,7 @@ import { colors } from '@/constants/theme'
 const { height } = Dimensions.get('window')
 
 const ScreenWrapper = ({ style, children }: ScreenWrapperProps) => {
-  let paddingTop = Platform.OS === 'ios' ? height * 0.06 : 50
+  let paddingTop = Platform.OS === 'ios' ? height * 0.06 : 0
   return (
     <View
       style={[
@@ -25,7 +25,10 @@ const ScreenWrapper = ({ style, children }: ScreenWrapperProps) => {
         style
       ]}
     >
-      <StatusBar barStyle={'light-content'} />
+      <StatusBar
+        barStyle={'light-content'}
+        backgroundColor={colors.neutral900}
+      />
       {children}
     </View>
   )
