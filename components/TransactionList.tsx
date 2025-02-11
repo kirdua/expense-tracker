@@ -6,8 +6,9 @@ import { colors, radius, spacingY, spacingX } from '@/constants/theme'
 import Typo from './Typo'
 import { FlashList } from '@shopify/flash-list'
 import Loading from './Loading'
-import { expenseCategories } from '@/constants/data'
+import { expenseCategories, incomeCategory } from '@/constants/data'
 import Animated, { FadeInDown } from 'react-native-reanimated'
+import * as Icons from 'phosphor-react-native'
 
 const TransactionList = ({
   data,
@@ -65,8 +66,32 @@ const TransactionItem = ({
   index,
   handleClick
 }: TransactionItemProps) => {
-  let category = expenseCategories['utilities']
+  let category =
+    item?.type === 'income'
+      ? incomeCategory
+      : expenseCategories[item.category!] || {
+          icon: Icons.MoneyWavy,
+          label: 'Expense',
+          bgColor: '#be185d'
+        }
+  console.log(item)
   const IconComponent = category.icon
+
+  const formatFirestoreDate = (date: any) => {
+    if (!date) return 'Invalid Date'
+
+    if (date instanceof Date) {
+      // ✅ Already a JavaScript Date
+      return date.toLocaleDateString()
+    }
+
+    if (date.seconds) {
+      // ✅ Convert Firestore Timestamp
+      return new Date(date.seconds * 1000).toLocaleDateString()
+    }
+
+    return 'Invalid Date'
+  }
 
   return (
     <Animated.View
@@ -76,12 +101,16 @@ const TransactionItem = ({
     >
       <TouchableOpacity style={styles.row} onPress={() => handleClick(item)}>
         <View style={[styles.icon, { backgroundColor: category.bgColor }]}>
-          {IconComponent && (
-            <IconComponent
+          {category.icon ? (
+            <category.icon
               size={verticalScale(25)}
               weight='fill'
               color={colors.white}
             />
+          ) : (
+            <Typo size={16} color={colors.white}>
+              ?
+            </Typo>
           )}
         </View>
 
@@ -92,16 +121,16 @@ const TransactionItem = ({
             color={colors.neutral400}
             textProps={{ numberOfLines: 1 }}
           >
-            paid wifi bill
+            {item.description || 'No description'}
           </Typo>
         </View>
 
         <View style={styles.amountDate}>
-          <Typo fontWeight={'500'} color={colors.rose}>
-            - $23
+          <Typo fontWeight='500' color={colors.rose}>
+            {item.type === 'income' ? `+ $${item.amount}` : `- $${item.amount}`}
           </Typo>
           <Typo size={13} color={colors.neutral400}>
-            Jan 12
+            {formatFirestoreDate(item.date)}
           </Typo>
         </View>
       </TouchableOpacity>

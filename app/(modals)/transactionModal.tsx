@@ -34,6 +34,7 @@ import { orderBy, where } from 'firebase/firestore'
 import DateTimePicker, {
   DateTimePickerAndroid
 } from '@react-native-community/datetimepicker'
+import { createOrUpdateTransaction } from '@/services/transactionService'
 
 const TransactionModal = () => {
   const { user } = useAuth()
@@ -85,7 +86,6 @@ const TransactionModal = () => {
       Alert.alert('Transaction', 'Please fill in the fields')
       return
     }
-    console.log('good to go')
 
     let transactionData: TransactionType = {
       type,
@@ -97,7 +97,16 @@ const TransactionModal = () => {
       uid: user?.uid
     }
 
-    console.log('Transaction data: ', transactionData)
+    //todo: add transaction id for update
+
+    setLoading(true)
+    const res = await createOrUpdateTransaction(transactionData)
+    setLoading(false)
+    if (res.success) {
+      router.back()
+    } else {
+      Alert.alert('Transaction', res.msg)
+    }
   }
 
   const onDelete = async () => {
@@ -198,7 +207,7 @@ const TransactionModal = () => {
               }}
             />
           </View>
-          {/*  expense category */}
+          {/* expense category */}
           {transaction.type == 'expense' && (
             <View style={styles.inputContainer}>
               <Typo color={colors.neutral200}>Expense Category</Typo>
@@ -216,9 +225,13 @@ const TransactionModal = () => {
                 itemContainerStyle={styles.dropdownItemContainer}
                 containerStyle={styles.dropdownListContainer}
                 placeholder={'Select category'}
-                value={transaction.walletId}
+                value={transaction.category?.value} //
                 onChange={(item) => {
-                  setTransaction({ ...transaction, category: item.value || '' })
+                  setTransaction({
+                    ...transaction,
+                    category: item,
+                    type: item.value
+                  })
                 }}
               />
             </View>
